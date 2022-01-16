@@ -2,7 +2,7 @@
 title: "Logistic Regression with R"
 author: "Charlotte_k"
 date: "1/15/2022"
-output: html_document
+output: rmarkdown::github_document
 ---
 
 #### **0. Logistic Regression Intro.**
@@ -12,7 +12,7 @@ output: html_document
 
 
 
-#### **1. Load Chrun data, take a look at the file and see summary**
+#### **1. Load Churn data, take a look at the file and see summary**
 
 ```{r}
 churndata = read.table('/Users/rouhsin_charlotte/Downloads/6312:13_Statistics data/Churndata.dat', header = TRUE)

@@ -2,7 +2,9 @@
 title: "Logistic Regression with R"
 author: "Charlotte_k"
 date: "1/15/2022"
-output: rmarkdown::github_document
+output: 
+  html_document:
+    keep_md: true
 ---
 
 #### **0. Logistic Regression Intro.**

@@ -1,0 +1,83 @@
+---
+title: "Logistic Regression with R"
+author: "Charlotte_k"
+date: "1/15/2022"
+output: html_document
+---
+
+#### **0. Logistic Regression Intro.**
+- Similar to a linear regression model **where the dependent variable is categorical** rather than numeric (continuous).
+- This note focus on **binary** dependent variable (0 or 1). For example, pass/fail, alive/dead, win/lose...etc.
+- Approach: the binary logistic model is used to **estimate the probability** (based on odds) of a binary response.
+
+
+
+#### **1. Load Chrun data, take a look at the file and see summary**
+
+```{r}
+churndata = read.table('/Users/rouhsin_charlotte/Downloads/6312:13_Statistics data/Churndata.dat', header = TRUE)
+head(churndata)
+```
+
+```{r}
+summary(churndata)
+```
+
+#### **2. Build Logistic Regression Model (Choosing Logistic Model)**
+- There are other well-defined nonlinear models like Angular, Gompertz, Burr, Urban, **Logistics, and Probit.**
+- We are getting **Ln(Odds(DropOut)) = b0 + b1*Age**
+```{r}
+churn.logit = glm(Dropout~Age, data = churndata, family = binomial(link = 'logit'))
+summary(churn.logit)
+```
+
+#### **3. Plot the Model**
+```{r}
+AgeVals = seq(0,80,1)
+NewData = data.frame(AgeVals)
+NewData["PredVal"] = predict(churn.logit, list(Age = NewData$AgeVals), type = "link")
+NewData["PredProb"] = exp(NewData$PredVal)/(1+exp(NewData$PredVal))
+NewData["PredProb2"] = predict(churn.logit, list(Age = NewData$AgeVals), type = "response")
+print(head(NewData))
+```
+
+```{r}
+plot(NewData$AgeVals, NewData$PredProb, pch = 16, xlab = "Age", ylab = "Predicted Probability")
+```
+
+#### **4. Interpretation of B0 and B1**
+- `exp(b1)` represents the **expected amount by which odds are multiplied** when the independent variable is increased by 1 unit.
+- `(exp(b1)-1)x100` represents the **expected percentage change in the odds** associated with a 1 unit increase in the independent variable.
+- `exp(b0)` represents the **expected odds when the independent variable is equal to 0**. In the current context, it's meaningless. 
+
+#### **5. Hypothesis Test in Logistic Regression**
+H0: B1  = 0 The best-fitting logistic curve in population is a horizontal straight line.
+H1: B1 != 0 The best-fitting logistic curve in population is NOT a horizontal straight line.
+
+#### **6. How well is your prediction model?**
+- There's no R^2 statistic with logistic regression.
+- Pseudo R^2, in this case, serve a similar purpose: McFadden's R2
+
+##### **a. McFadden's R2**
+- Ranging from 0 to just under 1, with values closer to 1 indicating the model has more predictive power.
+- Values **greater than 0.4** are good.
+```{r}
+library(pscl)
+pR2(churn.logit)
+```
+
+##### **b. Receiver Operating Characteristic (ROC) Curves and AUROC**
+- ROC measures classification performance.
+
+```{r}
+library(pROC)
+ROC.curve = roc(Dropout~Age, data = churndata)
+plot(ROC.curve, col = "red")
+```
+
+- Area under the ROC curve ranges from 0.5 ro 1.
+- Values above 0.8 indicate that  the model does a good job in **discriminating between the two categories of the outcome variable**.
+```{r}
+# Area under the curve
+auc(ROC.curve)
+```

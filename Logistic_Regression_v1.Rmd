@@ -105,14 +105,14 @@ hoslem.test(churndata$Dropout, fitted(churn.logit), g=10)
 p-value > 0.05 indicates a good fit.
 
 #### **Appendix A: Validation of Predicted Values: Classification Rates**
-```{r}
+
 library(InformationValue)
 confusionMatrix(churndata$Dropout, churndata$PredBin, 0.5)
 sensitivity(churndata$Dropout, churndata$PredBin, 0.5)
 specificity(churndata$Dropout, churndata$PredBin, 0.5)
 precision(churndata$Dropout, churndata$PredBin, 0.5)
 npv(churndata$Dropout, churndata$PredBin, 0.5)
-```
+
 
 #### **Appendix B: Finding the Optimal Threshold to Maximize Accuracy**
 Usually, only when we want to improve certain stats will we find the optimal threshold

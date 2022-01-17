@@ -43,7 +43,7 @@ summary(churndata)
 
 -   There are other well-defined nonlinear models like Angular,
     Gompertz, Burr, Urban, **Logistics, and Probit.**
--   We are getting \*\*Ln(Odds(DropOut)) = b0 + b1\*Age\*\*
+-   We are getting **Ln(Odds(DropOut)) = b0 + b1xAge**
 
 ``` r
 churn.logit = glm(Dropout~Age, data = churndata, family = binomial(link = 'logit'))
@@ -74,6 +74,32 @@ summary(churn.logit)
     ## 
     ## Number of Fisher Scoring iterations: 3
 
+#### **2.1 Show Predicted Values**
+
+``` r
+churndata["PredVal"] = predict(churn.logit, list(Age = churndata$Age), type = "link")
+churndata["PredProb"] = predict(churn.logit, list(Age = churndata$Age), type = "response")
+head(churndata)
+```
+
+    ##   Age Loyalty Dropout     PredVal   PredProb
+    ## 1  28       4       0 -0.09541317 0.47616479
+    ## 2  50       4       0 -1.54355788 0.17601866
+    ## 3  34       1       1 -0.49036173 0.37980836
+    ## 4  47       2       0 -1.34608360 0.20651139
+    ## 5  42       2       0 -1.01695980 0.26562002
+    ## 6  60       5       0 -2.20180547 0.09958847
+
+#### **2.2 Prediction Based on Specific Values of IDVs**
+
+``` r
+logits = predict(churn.logit, newdata = data.frame(Age = c(40,50)), type = "response")
+logits
+```
+
+    ##         1         2 
+    ## 0.2920786 0.1760187
+
 #### **3. Plot the Model**
 
 ``` r
@@ -97,7 +123,7 @@ print(head(NewData))
 plot(NewData$AgeVals, NewData$PredProb, pch = 16, xlab = "Age", ylab = "Predicted Probability")
 ```
 
-![](Logistic_Regression_v1_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Logistic_Regression_v1_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 #### **4. Interpretation of B0 and B1**
 
@@ -177,12 +203,11 @@ ROC.curve = roc(Dropout~Age, data = churndata)
 plot(ROC.curve, col = "red")
 ```
 
-![](Logistic_Regression_v1_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Logistic_Regression_v1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 -   Area under the ROC curve ranges from 0.5 ro 1.
--   Values above 0.8 indicate that the model does a good job in
-    **discriminating between the two categories of the outcome
-    variable**.
+-   Values **above 0.8** indicate that the model does a **good job in
+    discriminating between the two categories of the outcome variable**.
 
 ``` r
 # Area under the curve
@@ -190,3 +215,56 @@ auc(ROC.curve)
 ```
 
     ## Area under the curve: 0.6982
+
+#### **6.1 Is a Logistic Curve Appropriate?: Hosmer-Lemeshow Goodness of Fit Test**
+
+-   The test computed on data (observations) segmented into groups with
+    similar predicted probabilities.
+-   To see whether the observed proportions of events are similar to the
+    predicted probabilities in subgroups using a **Pearson Chi Square
+    test**.
+-   H0: the model fits the data
+
+``` r
+library(ResourceSelection)
+```
+
+    ## ResourceSelection 0.3-5   2019-07-22
+
+``` r
+hoslem.test(churndata$Dropout, fitted(churn.logit), g=10)
+```
+
+    ## 
+    ##  Hosmer and Lemeshow goodness of fit (GOF) test
+    ## 
+    ## data:  churndata$Dropout, fitted(churn.logit)
+    ## X-squared = 13.673, df = 8, p-value = 0.0907
+
+p-value &gt; 0.05 indicates a good fit.
+
+#### **Appendix A: Validation of Predicted Values: Classification Rates**
+
+library(InformationValue)
+confusionMatrix(churndata*D**r**o**p**o**u**t*, *c**h**u**r**n**d**a**t**a*PredBin,
+0.5)
+sensitivity(churndata*D**r**o**p**o**u**t*, *c**h**u**r**n**d**a**t**a*PredBin,
+0.5)
+specificity(churndata*D**r**o**p**o**u**t*, *c**h**u**r**n**d**a**t**a*PredBin,
+0.5)
+precision(churndata*D**r**o**p**o**u**t*, *c**h**u**r**n**d**a**t**a*PredBin,
+0.5)
+npv(churndata*D**r**o**p**o**u**t*, *c**h**u**r**n**d**a**t**a*PredBin,
+0.5)
+
+#### **Appendix B: Finding the Optimal Threshold to Maximize Accuracy**
+
+Usually, only when we want to improve certain stats will we find the
+optimal threshold
+
+``` r
+library(InformationValue)
+optimalCutoff(churndata$Dropout, churndata$PredProb)
+```
+
+    ## [1] 0.4861566

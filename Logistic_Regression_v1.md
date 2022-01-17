@@ -129,6 +129,7 @@ plot(NewData$AgeVals, NewData$PredProb, pch = 16, xlab = "Age", ylab = "Predicte
 
 -   `exp(b1)` represents the **expected amount by which odds are
     multiplied** when the independent variable is increased by 1 unit.
+    **The value is also referred to as “odds ratio”**
 -   `(exp(b1)-1)x100` represents the **expected percentage change in the
     odds** associated with a 1 unit increase in the independent
     variable.
@@ -245,17 +246,38 @@ p-value &gt; 0.05 indicates a good fit.
 
 #### **Appendix A: Validation of Predicted Values: Classification Rates**
 
+``` r
 library(InformationValue)
-confusionMatrix(churndata*D**r**o**p**o**u**t*, *c**h**u**r**n**d**a**t**a*PredBin,
-0.5)
-sensitivity(churndata*D**r**o**p**o**u**t*, *c**h**u**r**n**d**a**t**a*PredBin,
-0.5)
-specificity(churndata*D**r**o**p**o**u**t*, *c**h**u**r**n**d**a**t**a*PredBin,
-0.5)
-precision(churndata*D**r**o**p**o**u**t*, *c**h**u**r**n**d**a**t**a*PredBin,
-0.5)
-npv(churndata*D**r**o**p**o**u**t*, *c**h**u**r**n**d**a**t**a*PredBin,
-0.5)
+confusionMatrix(churndata$Dropout, churndata$PredProb, 0.5)
+```
+
+    ##     0   1
+    ## 0 308 110
+    ## 1  34  48
+
+``` r
+sensitivity(churndata$Dropout, churndata$PredProb, 0.5)
+```
+
+    ## [1] 0.3037975
+
+``` r
+specificity(churndata$Dropout, churndata$PredProb, 0.5)
+```
+
+    ## [1] 0.9005848
+
+``` r
+precision(churndata$Dropout, churndata$PredProb, 0.5)
+```
+
+    ## [1] 0.5853659
+
+``` r
+npv(churndata$Dropout, churndata$PredProb, 0.5)
+```
+
+    ## [1] 0.7368421
 
 #### **Appendix B: Finding the Optimal Threshold to Maximize Accuracy**
 

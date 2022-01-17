@@ -58,7 +58,7 @@ plot(NewData$AgeVals, NewData$PredProb, pch = 16, xlab = "Age", ylab = "Predicte
 ```
 
 #### **4. Interpretation of B0 and B1**
-- `exp(b1)` represents the **expected amount by which odds are multiplied** when the independent variable is increased by 1 unit.
+- `exp(b1)` represents the **expected amount by which odds are multiplied** when the independent variable is increased by 1 unit. **The value is also referred to as "odds ratio"**
 - `(exp(b1)-1)x100` represents the **expected percentage change in the odds** associated with a 1 unit increase in the independent variable.
 - `exp(b0)` represents the **expected odds when the independent variable is equal to 0**. In the current context, it's meaningless. 
 
@@ -105,14 +105,14 @@ hoslem.test(churndata$Dropout, fitted(churn.logit), g=10)
 p-value > 0.05 indicates a good fit.
 
 #### **Appendix A: Validation of Predicted Values: Classification Rates**
-
+```{r}
 library(InformationValue)
-confusionMatrix(churndata$Dropout, churndata$PredBin, 0.5)
-sensitivity(churndata$Dropout, churndata$PredBin, 0.5)
-specificity(churndata$Dropout, churndata$PredBin, 0.5)
-precision(churndata$Dropout, churndata$PredBin, 0.5)
-npv(churndata$Dropout, churndata$PredBin, 0.5)
-
+confusionMatrix(churndata$Dropout, churndata$PredProb, 0.5)
+sensitivity(churndata$Dropout, churndata$PredProb, 0.5)
+specificity(churndata$Dropout, churndata$PredProb, 0.5)
+precision(churndata$Dropout, churndata$PredProb, 0.5)
+npv(churndata$Dropout, churndata$PredProb, 0.5)
+```
 
 #### **Appendix B: Finding the Optimal Threshold to Maximize Accuracy**
 Usually, only when we want to improve certain stats will we find the optimal threshold

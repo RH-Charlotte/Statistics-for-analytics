@@ -25,10 +25,22 @@ summary(churndata)
 
 #### **2. Build Logistic Regression Model (Choosing Logistic Model)**
 - There are other well-defined nonlinear models like Angular, Gompertz, Burr, Urban, **Logistics, and Probit.**
-- We are getting **Ln(Odds(DropOut)) = b0 + b1*Age**
+- We are getting **Ln(Odds(DropOut)) = b0 + b1xAge**
 ```{r}
 churn.logit = glm(Dropout~Age, data = churndata, family = binomial(link = 'logit'))
 summary(churn.logit)
+```
+
+#### **2.1 Show Predicted Values**
+```{r}
+churndata["PredVal"] = predict(churn.logit, list(Age = churndata$Age), type = "link")
+churndata["PredProb"] = predict(churn.logit, list(Age = churndata$Age), type = "response")
+head(churndata)
+```
+#### **2.2 Prediction Based on Specific Values of IDVs**
+```{r}
+logits = predict(churn.logit, newdata = data.frame(Age = c(40,50)), type = "response")
+logits
 ```
 
 #### **3. Plot the Model**
@@ -76,8 +88,41 @@ plot(ROC.curve, col = "red")
 ```
 
 - Area under the ROC curve ranges from 0.5 ro 1.
-- Values above 0.8 indicate that  the model does a good job in **discriminating between the two categories of the outcome variable**.
+- Values **above 0.8** indicate that  the model does a **good job in discriminating between the two categories of the outcome variable**.
 ```{r}
 # Area under the curve
 auc(ROC.curve)
 ```
+
+#### **6.1 Is a Logistic Curve Appropriate?: Hosmer-Lemeshow Goodness of Fit Test**
+- The test computed on data (observations) segmented into groups with similar predicted probabilities.
+- To see whether the observed proportions of events are similar to the predicted probabilities in subgroups using a **Pearson Chi Square test**.
+- H0: the model fits the data
+```{r}
+library(ResourceSelection)
+hoslem.test(churndata$Dropout, fitted(churn.logit), g=10)
+```
+p-value > 0.05 indicates a good fit.
+
+#### **Appendix A: Validation of Predicted Values: Classification Rates**
+```{r}
+library(InformationValue)
+confusionMatrix(churndata$Dropout, churndata$PredBin, 0.5)
+sensitivity(churndata$Dropout, churndata$PredBin, 0.5)
+specificity(churndata$Dropout, churndata$PredBin, 0.5)
+precision(churndata$Dropout, churndata$PredBin, 0.5)
+npv(churndata$Dropout, churndata$PredBin, 0.5)
+```
+
+#### **Appendix B: Finding the Optimal Threshold to Maximize Accuracy**
+Usually, only when we want to improve certain stats will we find the optimal threshold
+```{r}
+library(InformationValue)
+optimalCutoff(churndata$Dropout, churndata$PredProb)
+```
+
+
+
+
+
+
